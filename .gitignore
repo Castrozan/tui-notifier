@@ -179,6 +179,7 @@ cython_debug/
 # devenv
 .devenv/
 devenv.local.nix
+.devenv*
 
 # direnv
 .direnv/
