@@ -79,9 +79,17 @@ class NotificationApp(App):
                 return None
 
     def _run_notification(self, delay_seconds: int, message: str) -> None:
-        time.sleep(delay_seconds)
-        # Use notify-send for desktop notifications and disown the process        
-        subprocess.Popen(['notify-send', 'TUI Notifier', message], preexec_fn=subprocess.os.setsid)
+        # Start a completely detached process that will survive app termination
+        subprocess.Popen(
+            [
+                'sh', '-c',
+                f'sleep {delay_seconds} && notify-send "TUI Notifier" "{message}"'
+            ],
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            stdin=subprocess.DEVNULL
+        )
 
 if __name__ == "__main__":
     app = NotificationApp()
