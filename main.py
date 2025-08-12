@@ -52,7 +52,7 @@ class NotificationApp(App):
             self.query_one("#notifications_container").mount(Label(notification_text))
 
             # Schedule the notification in a separate thread
-            threading.Thread(target=self._run_notification, args=(delay_seconds, message)).start()
+            threading.Thread(target=self._run_notification, args=(delay_seconds, message), daemon=True).start()
 
             self.query_one("#time_input").value = ""
             self.query_one("#message_input").value = ""
@@ -80,14 +80,8 @@ class NotificationApp(App):
 
     def _run_notification(self, delay_seconds: int, message: str) -> None:
         time.sleep(delay_seconds)
-        # Use notify-send for desktop notifications and disown the process
-        try:
-            subprocess.Popen(['notify-send', 'TUI Notifier', message], 
-                           stdout=subprocess.DEVNULL, 
-                           stderr=subprocess.DEVNULL)
-        except (FileNotFoundError, subprocess.SubprocessError):
-            # notify-send not available, notification will be silently skipped
-            pass
+        # Use notify-send for desktop notifications and disown the process        
+        subprocess.Popen(['notify-send', 'TUI Notifier', message], preexec_fn=subprocess.os.setsid)
 
 if __name__ == "__main__":
     app = NotificationApp()
